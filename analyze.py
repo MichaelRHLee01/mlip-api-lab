@@ -2,9 +2,29 @@ from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from msrest.authentication import CognitiveServicesCredentials
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
 import time
+from configparser import ConfigParser
+import os
 
-endpoint = "ENTER ENDPOINT HERE"
-key = "ENTER KEY HERE"
+
+
+def get_credentials():
+    # Try environment variables first
+    endpoint = os.environ.get('AZURE_ENDPOINT')
+    key = os.environ.get('AZURE_KEY')
+    
+    # If not in environment, try config file
+    if not (endpoint and key):
+        config = ConfigParser()
+        if config.read('config.ini'):
+            endpoint = config['azure']['endpoint']
+            key = config['azure']['key']
+        else:
+            raise Exception("No credentials found. Set environment variables or create config.ini")
+    
+    return endpoint, key
+
+
+endpoint, key = get_credentials()
 
 credentials = CognitiveServicesCredentials(key)
 
